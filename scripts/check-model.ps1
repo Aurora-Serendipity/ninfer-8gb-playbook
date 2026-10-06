@@ -44,5 +44,10 @@ $sha = (Get-FileHash -LiteralPath $Model -Algorithm SHA256).Hash
 "MODELCHECK_SHA256_EXPECTED=$ExpectedSha256"
 if ($sha -ne $ExpectedSha256) { $ok = $false; "MODELCHECK_HASH=FAIL" } else { "MODELCHECK_HASH=OK" }
 
-if ($ok) { "MODELCHECK_VERDICT=OK" } else { "MODELCHECK_VERDICT=FAIL" "MODELCHECK_REASON=size or hash mismatch -- re-download, do not start the engine" }
+if ($ok) {
+  "MODELCHECK_VERDICT=OK"
+} else {
+  "MODELCHECK_VERDICT=FAIL"
+  "MODELCHECK_REASON=size or hash mismatch -- re-download, do not start the engine"
+}
 if ($ok) { exit 0 } else { exit 1 }

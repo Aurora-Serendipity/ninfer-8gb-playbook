@@ -1,14 +1,14 @@
-# verify-kit-manifest.ps1 -- check a kit's SHA256SUMS.txt against its own contents, BYTE-EXACT.
+﻿# verify-kit-manifest.ps1 -- check a kit's SHA256SUMS.txt against its own contents, BYTE-EXACT.
 #
 # WHY THIS EXISTS (measured 2026-10-01):
 #   1) SHA256SUMS.txt in these kits is UTF-8 WITHOUT a BOM and carries NON-ASCII file names
 #      (engine\档位探针.ps1, engine\自检-*.ps1, README-内测包.md).
 #   2) Windows PowerShell 5.1 -- what the kit's own notes assume, and what runs by default on a
 #      cp936 machine -- reads a BOM-less file as ANSI, so those five names arrive mangled
-#      (engine\妗ｄ綅鎺㈤拡.ps1). A verifier that then reports "MISSING" is reporting its own
+#      (engine\档位探针.ps1). A verifier that then reports "MISSING" is reporting its own
 #      encoding bug as package corruption: a FALSE RED, and a direct violation of the "a name that
 #      does not exist makes every check pass silently" rule in the pitfall table.
-#   3) A manifest can also go STALE: E:\betakit-lite's three engines were overwritten on 2026-10-01
+#   3) A manifest can also go STALE: an upstream pack's three engines were overwritten on 2026-10-01
 #      02:29-08:56 while its SHA256SUMS.txt still dated 2026-09-30 23:33. This script reports the
 #      manifest's own mtime against the newest file it covers, so a stale manifest is visible.
 #

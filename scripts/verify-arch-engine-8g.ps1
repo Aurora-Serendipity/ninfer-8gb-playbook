@@ -22,7 +22,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
   [Parameter(Mandatory = $true)][string]$Tag,
-  [string]$Model = 'E:\betakit-ptq1-v1\models\bonsai2_27b_ternary_ptq1_mtp.ninfer',
+  [string]$Model = '..\20-model\models\bonsai2_27b_ternary_ptq1_native_mtp.ninfer',
   [int]$Port = 8095,
   [int]$MaxContext = 65536,     # kept modest so the RING HOST-BUDGET GUARD is satisfiable:
                                 # it needs host_pages + pool_pages >= page_count(max_context)
@@ -34,6 +34,11 @@ param(
   [int]$ReadyTimeoutSec = 300
 )
 $ErrorActionPreference = 'Continue'
+# Resolve a relative -Model against this script's own directory.
+# The default above is deliberately kept as a plain RELATIVE path and resolved here:
+# it reads more clearly than a nested Join-Path in the param block, and it keeps the
+# resolved value visible in the REFUSE message when the model is missing.
+if (-not [IO.Path]::IsPathRooted($Model)) { $Model = Join-Path $PSScriptRoot $Model }
 # The delivery ships the model under this name; accept either spelling.
 if (-not (Test-Path -LiteralPath $Model)) {
   $alt = $Model -replace '_mtp\.ninfer$', '_native_mtp.ninfer'
@@ -93,7 +98,7 @@ function Engine-Arm {
     Where-Object { $_.ExecutablePath -eq $Exe } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
   $dl = (Get-Date).AddSeconds(30)
   while ((Get-Date) -lt $dl -and (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) { Start-Sleep -Milliseconds 500 }
-  $env:PATH = 'E:\cuda-13.3\bin;E:\cuda-13.3\bin\x64;' + (Split-Path $Exe -Parent) + ';' + $env:PATH
+  $env:PATH = (Split-Path $Exe -Parent) + ';' + (Join-Path (Split-Path $Exe -Parent) 'x64') + ';' + $env:PATH
   Set-Location (Split-Path $Exe -Parent)
   $p = Start-Process -FilePath $Exe -ArgumentList $argv -PassThru -NoNewWindow `
     -RedirectStandardOutput (Join-Path $dir 'out.log') -RedirectStandardError (Join-Path $dir 'err.log')
