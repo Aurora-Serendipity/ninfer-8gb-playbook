@@ -94,13 +94,8 @@ function Engine-Arm {
     '--default-max-tokens','2048','--default-reasoning-effort','none','--max-concurrency','1',
     '--max-shared-prefixes','0','--gdn-state-fp16','--no-cuda-graph',
     '--presence-penalty','0','--temperature','0','--top-p','1','--top-k','0')
-  # NOTE (2026-10-06): the filter used to be Name='ninfer-serve*.exe' -- WQL '=' is an EXACT
-  # match, so the '*' was literal and NOTHING was ever stopped. A leftover engine then kept
-  # the port and the VRAM: this arm's own engine died with "only 0 bytes are available for
-  # runtime capacity", while the /v1/models poll below was answered by the LEFTOVER engine,
-  # so the arm looked ready and its verdict was meaningless. WQL needs LIKE for wildcards.
-  Get-CimInstance Win32_Process -Filter "Name LIKE 'ninfer-serve%.exe'" -ErrorAction SilentlyContinue |
-    ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+  Get-CimInstance Win32_Process -Filter "Name='ninfer-serve*.exe'" -ErrorAction SilentlyContinue |
+    Where-Object { $_.ExecutablePath -eq $Exe } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
   $dl = (Get-Date).AddSeconds(30)
   while ((Get-Date) -lt $dl -and (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) { Start-Sleep -Milliseconds 500 }
   $env:PATH = (Split-Path $Exe -Parent) + ';' + (Join-Path (Split-Path $Exe -Parent) 'x64') + ';' + $env:PATH
@@ -116,15 +111,6 @@ function Engine-Arm {
   if (-not $ready) {
     "  [$ArmTag] NOT SERVABLE - stderr tail:"
     Get-Content (Join-Path $dir 'err.log') -ErrorAction SilentlyContinue | Select-Object -Last 4 | ForEach-Object { "      | $_" }
-    if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
-    return @{ Ready = $false; Warn = 0; Hits = 0; Trials = 0 }
-  }
-  # Guard (2026-10-06): make sure the 200 above came from the engine THIS arm started.
-  $owner = (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
-            Select-Object -First 1).OwningProcess
-  if ($owner -and $owner -ne $p.Id) {
-    "  [$ArmTag] ABORT: port $Port is owned by PID $owner, not by the engine this arm started (PID $($p.Id))."
-    "      A leftover engine would be answering every probe, so the verdict would be meaningless."
     if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
     return @{ Ready = $false; Warn = 0; Hits = 0; Trials = 0 }
   }
