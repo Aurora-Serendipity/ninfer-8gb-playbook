@@ -1,0 +1,23 @@
+# 换行符策略（Windows 部署项目，必须钉死）
+#
+# 为什么重要：本项目的主角之一是 .bat 批处理脚本。
+# cmd.exe 解析 .bat 时对换行与编码都敏感（详见 docs/11-脚本与工具说明.md 的"通用约定"一节），
+# 所以启动器在仓库里与检出后都必须是 CRLF，不能靠 core.autocrlf 的默认行为碰运气。
+
+* text=auto eol=lf
+
+# 批处理：必须 CRLF（cmd 的 goto 标签解析在极端情况下会受换行影响）
+*.bat text eol=crlf
+
+# PowerShell：Windows 侧惯例 CRLF
+*.ps1 text eol=crlf
+
+# 文档与配置：LF 即可
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 二进制（本项目不收录引擎与权重，这里只是防止误加）
+*.exe binary
+*.dll binary
+*.ninfer binary
