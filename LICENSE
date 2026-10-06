@@ -2,21 +2,6 @@ MIT License
 
 Copyright (c) 2026 Aurora-Serendipity
 
----------------------------------------------------------------------------
-SCOPE NOTE
-  This MIT license covers the SCRIPTS in this repository (the scripts\
-  directory) and any other material not explicitly stated otherwise.
-
-  The DOCUMENTATION and PROSE (README.md and everything under docs\) are
-  licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
-  https://creativecommons.org/licenses/by/4.0/
-
-  Third-party components referenced by this repository (the inference engine
-  binary, model weights, and the upstream project's own documentation) are
-  NOT included here and remain under their own licenses.
-  See docs/10-许可与致谢.md for details.
----------------------------------------------------------------------------
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
