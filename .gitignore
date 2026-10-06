@@ -1,0 +1,31 @@
+# --- Windows / editor ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- 编辑器与 IDE ---
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- 不该进公开仓库的东西（安全）---
+*.key
+*.pem
+*.pfx
+credentials*.yml
+credentials*.yaml
+.env
+.env.*
+
+# --- 实测产物：日志目录由 scripts\verify-arch-engine-8g.ps1 生成 ---
+data/needle/
+*.log
+
+# --- 引擎与模型件：本仓库不分发，放进来也不要提交 ---
+10-engine/
+20-model/
+*.exe
+*.ninfer
