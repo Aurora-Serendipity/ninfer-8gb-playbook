@@ -70,7 +70,7 @@ if ($MissingDll.Count -eq 0) {
 # 3) --default-max-tokens 16384 -> 2048 to stay <= the device pool, per upstream B01.
 # The shipped script in 40-docs\pack\ is untouched.
 # ---------------------------------------------------------------------------------
-$Out = Join-Path $PSScriptRoot '..\data\needle' $Tag
+$Out = Join-Path (Join-Path $PSScriptRoot '..\data\needle') $Tag
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $Fail = 0
 
