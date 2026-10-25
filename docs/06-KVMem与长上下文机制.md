@@ -127,7 +127,7 @@ kvmem_score: SELECT … kept=512 scored_kept=448 candidates=560 …
 - 不改引擎侧任何选项。
 
 **headroom 与预算**：`pool_usable = 池 − gateway_headroom`；本方案 headroom = 输出上限 + 512：
-日常 `12,800 − 4,608 = 8,192`、长档 `51,200 − 8,704 = 42,496`。
+日常 `12,800 − 2,560 = 10,240`、长档 `51,200 − 8,704 = 42,496`。
 这两个数就是客户端推荐的 `contextWindow`（见 [09](09-第三方客户端接入.md)）。
 
 > ⚠️ **网关让位是有损的，而且 L1 会丢材料**：实测一条 17,701（est）的超大单条历史消息
@@ -153,8 +153,8 @@ kvmem_score: SELECT … kept=512 scored_kept=448 candidates=560 …
 
 | 材料规模（日常档）                      | 可靠性             | 做法                                                                     |
 | --------------------------------------- | ------------------ | ------------------------------------------------------------------------ |
-| ≤ 8,192 token（题面 + 输出仍 ≤ 12,800） | 最高（全在设备池） | 直接贴、直接问                                                           |
-| 8,192 ~ 12,800                          | 中（接近池上限）   | 缩短材料 / 明确要求引用原文                                              |
+| ≤ 10,240 token（题面 + 输出仍 ≤ 12,800） | 最高（全在设备池） | 直接贴、直接问                                                           |
+| 10,240 ~ 12,800                          | 中（接近池上限）   | 缩短材料 / 明确要求引用原文                                              |
 | > 12,800                                | 低（超池）         | **换长档**（池 51,200）或分片（上游 `agg_gateway.py`）或让网关让位后核对 |
 | > 51,200（长档也超池）                  | 不适合单请求       | 必须分片；每片 ≤ 池                                                      |
 
@@ -172,7 +172,7 @@ kvmem_score: SELECT … kept=512 scored_kept=448 candidates=560 …
 | `[ring] host_kv_arena is null … run dense`                                            | 主机层失效                                 | ✅ **是**（检查 `NINFER_HOST_PAGEABLE=1`） |
 | `[ring] budgets … sum==pool: yes`                                                     | 四桶恒等式                                 | 否                                         |
 | `[spec] backend=mtp draft_tokens=4 attention_window=8 ngram=15`                       | 投机自证                                   | 否                                         |
-| `req#N started \| … \| max output 4096\|8192 \| thinking off \| tools N`              | 请求开始；**核对 thinking off 与输出上限** | 否                                         |
+| `req#N started \| … \| max output 2048\|8192 \| thinking off \| tools N`              | 请求开始；**核对 thinking off 与输出上限** | 否                                         |
 | `req#N done \| … \| prompt N …`                                                       | 请求结束（权威读数）                       | 否                                         |
 | `kvmem_score: SELECT …` / `ring retrieve: …`                                          | 检索在动                                   | 否（长题面刷屏正常）                       |
 | `prompt exceeds the resident Device KV pool …`                                        | **超池**                                   | ✅ **是**                                  |
